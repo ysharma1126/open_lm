@@ -9,8 +9,7 @@ from llmfoundry.eval.metrics.nlp import (
     InContextLearningLMExpectedCalibrationError,
     InContextLearningMCExpectedCalibrationError,
     InContextLearningMultipleChoiceAccuracy,
-    #InContextLearningQAAccuracy,
-    #InContextLearningCodeEvalAccuracy,
+    InContextLearningGenerationExactMatchAccuracy,
 )
 from composer.metrics.nlp import (
     LanguageCrossEntropy,
@@ -34,10 +33,9 @@ EVAL_METRICS = [
     LanguagePerplexity(),
     InContextLearningLMAccuracy(),
     InContextLearningMultipleChoiceAccuracy(),
-    #InContextLearningQAAccuracy(),
+    InContextLearningGenerationExactMatchAccuracy(),
     InContextLearningLMExpectedCalibrationError(),
     InContextLearningMCExpectedCalibrationError(),
-    #InContextLearningCodeEvalAccuracy(),
 ]
 
 class InContextLearningMultipleChoiceAccuracyPerSample(InContextLearningMultipleChoiceAccuracy):
@@ -48,8 +46,19 @@ class InContextLearningMultipleChoiceAccuracyPerSample(InContextLearningMultiple
         self.result.extend(super().update(*args, **kwargs)['result'])
     def compute(self):
         return self.result
-
+    
 EVAL_METRICS.append(InContextLearningMultipleChoiceAccuracyPerSample())
+    
+class InContextLearningLMAccuracyPerSample(InContextLearningLMAccuracy):
+    def __init__(self):
+        super().__init__() 
+        self.add_state('result', default=[])
+    def update(self, *args, **kwargs):
+        self.result.extend(super().update(*args, **kwargs)['result'])
+    def compute(self):
+        return self.result
+
+EVAL_METRICS.append(InContextLearningLMAccuracyPerSample())
 
 class SimpleComposerOpenLMCausalLM(HuggingFaceModel):
     def __init__(self, model, tokenizer):
