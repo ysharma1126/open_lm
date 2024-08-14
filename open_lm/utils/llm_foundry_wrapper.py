@@ -60,6 +60,17 @@ class InContextLearningLMAccuracyPerSample(InContextLearningLMAccuracy):
 
 EVAL_METRICS.append(InContextLearningLMAccuracyPerSample())
 
+class InContextLearningGenerationExactMatchAccuracyPerSample(InContextLearningGenerationExactMatchAccuracy):
+    def __init__(self):
+        super().__init__() 
+        self.add_state('result', default=[])
+    def update(self, *args, **kwargs):
+        self.result.extend(super().update(*args, **kwargs)['result'])
+    def compute(self):
+        return self.result
+
+EVAL_METRICS.append(InContextLearningGenerationExactMatchAccuracyPerSample())
+
 class SimpleComposerOpenLMCausalLM(HuggingFaceModel):
     def __init__(self, model, tokenizer):
         super().__init__(
